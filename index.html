@@ -3,59 +3,266 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calorie App</title>
+  <title>Calorie Up</title>
+
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
+      margin: 0;
+      padding: 20px;
       font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      text-align: center;
-      padding: 30px;
+      background: #f5f7f2;
+      color: #222;
     }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+    }
+
     h1 {
-      color: #2e7d32;
+      text-align: center;
+      margin-bottom: 5px;
     }
-    input {
-      width: 90%;
-      max-width: 300px;
-      padding: 10px;
-      margin: 10px;
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 18px;
+      margin-bottom: 15px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
       font-size: 16px;
     }
+
     button {
-      background: #2e7d32;
-      color: white;
+      width: 100%;
+      padding: 14px;
+      margin-top: 18px;
       border: none;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-size: 16px;
+      border-radius: 12px;
+      background: #39a852;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
     }
-    #result {
-      margin-top: 20px;
-      font-size: 18px;
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .result {
+      display: none;
+    }
+
+    .calories {
+      font-size: 36px;
+      font-weight: bold;
+      text-align: center;
+      margin: 15px 0;
+    }
+
+    .goal {
+      text-align: center;
+      color: #555;
+    }
+
+    .meal {
+      padding: 12px;
+      background: #f4f7f2;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .error {
+      color: #c62828;
+      margin-top: 10px;
+      text-align: center;
     }
   </style>
 </head>
+
 <body>
-  <h1>🥗 Calorie App</h1>
-  <p>Введите калории:</p>
 
-  <input type="number" id="calories" placeholder="Например: 1800">
+<div class="container">
 
-  <br>
+  <h1>🥗 Calorie Up</h1>
+  <div class="subtitle">Твой помощник по питанию</div>
 
-  <button onclick="showResult()">Рассчитать</button>
+  <div class="card">
 
-  <div id="result"></div>
+    <label>Пол</label>
+    <select id="gender">
+      <option value="female">Женский</option>
+      <option value="male">Мужской</option>
+    </select>
 
-  <script>
-    Telegram.WebApp.ready();
+    <label>Возраст</label>
+    <input id="age" type="number" placeholder="Например, 25">
 
-    function showResult() {
-      const c = document.getElementById("calories").value;
-      document.getElementById("result").innerHTML =
-        "✅ Вы ввели " + c + " ккал";
+    <label>Рост, см</label>
+    <input id="height" type="number" placeholder="Например, 165">
+
+    <label>Вес, кг</label>
+    <input id="weight" type="number" placeholder="Например, 60">
+
+    <label>Цель</label>
+    <select id="goal">
+      <option value="lose">Похудеть</option>
+      <option value="maintain">Поддерживать вес</option>
+      <option value="gain">Набрать вес</option>
+    </select>
+
+    <button onclick="calculateCalories()">
+      Рассчитать норму 🔥
+    </button>
+
+    <div id="error" class="error"></div>
+
+  </div>
+
+  <div id="result" class="card result">
+
+    <h2>Твоя дневная норма</h2>
+
+    <div id="calories" class="calories"></div>
+
+    <div id="goalText" class="goal"></div>
+
+    <h3>🍽️ Пример рациона</h3>
+
+    <div class="meal">
+      <b>🌅 Завтрак</b><br>
+      Овсянка, банан и яйцо
+    </div>
+
+    <div class="meal">
+      <b>☀️ Обед</b><br>
+      Курица, гречка и овощной салат
+    </div>
+
+    <div class="meal">
+      <b>🌙 Ужин</b><br>
+      Рыба, овощи и немного риса
+    </div>
+
+    <div class="meal">
+      <b>🍎 Перекус</b><br>
+      Йогурт и фрукт
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+  Telegram.WebApp.ready();
+
+  function calculateCalories() {
+
+    const gender = document.getElementById("gender").value;
+    const age = Number(document.getElementById("age").value);
+    const height = Number(document.getElementById("height").value);
+    const weight = Number(document.getElementById("weight").value);
+    const goal = document.getElementById("goal").value;
+
+    const error = document.getElementById("error");
+
+    if (!age || !height || !weight) {
+      error.textContent = "Пожалуйста, заполни все поля.";
+      return;
     }
-  </script>
+
+    if (age < 14 || age > 100) {
+      error.textContent = "Проверь возраст.";
+      return;
+    }
+
+    if (height < 100 || height > 250) {
+      error.textContent = "Проверь рост.";
+      return;
+    }
+
+    if (weight < 30 || weight > 300) {
+      error.textContent = "Проверь вес.";
+      return;
+    }
+
+    error.textContent = "";
+
+    let bmr;
+
+    if (gender === "male") {
+      bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+    } else {
+      bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+    }
+
+    let calories = bmr * 1.35;
+
+    if (goal === "lose") {
+      calories -= 300;
+    }
+
+    if (goal === "gain") {
+      calories += 300;
+    }
+
+    calories = Math.round(calories);
+
+    document.getElementById("calories").textContent =
+      calories + " ккал";
+
+    if (goal === "lose") {
+      document.getElementById("goalText").textContent =
+        "🎯 Цель: постепенное снижение веса";
+    }
+
+    if (goal === "maintain") {
+      document.getElementById("goalText").textContent =
+        "🎯 Цель: поддержание веса";
+    }
+
+    if (goal === "gain") {
+      document.getElementById("goalText").textContent =
+        "🎯 Цель: набор веса";
+    }
+
+    document.getElementById("result").style.display = "block";
+
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: "smooth"
+    });
+  }
+
+</script>
+
 </body>
 </html>
