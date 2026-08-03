@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calorie App</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      text-align: center;
+      padding: 30px;
+    }
+    h1 {
+      color: #2e7d32;
+    }
+    input {
+      width: 90%;
+      max-width: 300px;
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+    }
+    button {
+      background: #2e7d32;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🥗 Calorie App</h1>
+  <p>Введите калории:</p>
+
+  <input type="number" id="calories" placeholder="Например: 1800">
+
+  <br>
+
+  <button onclick="showResult()">Рассчитать</button>
+
+  <div id="result"></div>
+
+  <script>
+    Telegram.WebApp.ready();
+
+    function showResult() {
+      const c = document.getElementById("calories").value;
+      document.getElementById("result").innerHTML =
+        "✅ Вы ввели " + c + " ккал";
+    }
+  </script>
+</body>
+</html>
