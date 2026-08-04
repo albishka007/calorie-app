@@ -41,17 +41,43 @@ function showFoodPhoto(event) {
     "Фото загружено ✅";
 }
 
-function analyzeFood() {
+async function analyzeFood() {
   const file = document.getElementById("foodPhoto").files[0];
+  const result = document.getElementById("photoResult");
 
   if (!file) {
-    document.getElementById("photoResult").textContent =
-      "Сначала выбери фотографию еды 📸";
+    result.textContent = "Сначала выбери фотографию еды 📸";
     return;
   }
 
-  document.getElementById("photoResult").textContent =
-    "Фото готово к анализу 🤖\nФункцию определения калорий подключим следующим шагом.";
+  result.textContent = "🔍 Анализирую фото...";
+
+  const reader = new FileReader();
+
+  reader.onload = async function () {
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          image: reader.result
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Ошибка анализа");
+      }
+
+      result.textContent =
+        "🍽️ Результат:\n" + JSON.stringify(data);
+    } catch (error) {
+      result.textContent = "❌ Ошибка: " + error.message;
+    }
+  };
+
+  reader.readAsDataURL(file);
 }
-</script>
-    
